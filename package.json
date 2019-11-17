@@ -1,0 +1,19 @@
+{
+  "name": "glup-project",
+  "version": "1.0.0",
+  "author": "zhao",
+  "description": "gulp 静态页面构建工具",
+  "main": "index.js",
+  "scripts": {
+    "start": "gulp default"
+  },
+  "devDependencies": {
+    "gulp": "^4.0.2",
+    "gulp-autoprefixer": "^7.0.1",
+    "gulp-clean": "^0.4.0",
+    "gulp-clean-css": "^4.2.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-htmlmin": "^5.0.1",
+    "gulp-sourcemaps": "^2.6.5"
+  }
+}

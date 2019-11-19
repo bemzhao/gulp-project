@@ -1,4 +1,4 @@
-const { src, dest, series } = require('gulp');
+const { src, dest, series, parallel } = require('gulp');
       clean = require('gulp-clean');
       htmlmin = require('gulp-htmlmin');
       cleanCss = require('gulp-clean-css');
@@ -10,6 +10,7 @@ const { src, dest, series } = require('gulp');
       revReplace = require("gulp-rev-replace");
       imagemin = require('gulp-imagemin');
       babel = require('gulp-babel');
+      removeUseStrict = require("gulp-remove-use-strict");
 
 
 // 清空 dist
@@ -24,7 +25,7 @@ function minifyCss() {
 		.pipe(sourcemaps.init())
 		.pipe(autoprefixer())
     .pipe(cleanCss())
-    .pipe(concat('index.min.css'))
+    // .pipe(concat('index.min.css'))
     .pipe(rev())
     .pipe(sourcemaps.write('.'))
     .pipe(dest('dist/css'))
@@ -35,12 +36,10 @@ function minifyCss() {
 // 压缩合并 js  生成 sourcemaps 和 hash 
 function minifyJs () {
 	return src('src/js/*.js')
-    .pipe(babel({
-      presets: ['@babel/env']
-    }))
+    .pipe(babel())
 		.pipe(sourcemaps.init())
 		.pipe(uglify())
-		.pipe(concat('index.min.js'))
+		// .pipe(concat('index.min.js'))
 		.pipe(rev())
 		.pipe(sourcemaps.write('.'))
 		.pipe(dest('dist/js'))
@@ -60,9 +59,6 @@ function minifyImg() {
 // 压缩 html 生成 hash 
 function minifyHtml () {
 	return src('src/*.html')
-    .pipe(babel({
-      presets: ['@babel/env']
-    }))
     .pipe(htmlmin({ 
     	collapseWhitespace: true,
     	removeEmptyAttributes: true,
@@ -89,5 +85,5 @@ function revreplace () {
     .pipe(dest('dist'));
 }
 
-exports.build = series(cleanFiles, minifyCss, minifyJs, revreplace);
+exports.build = series(cleanFiles, parallel(minifyCss, minifyJs, copyTask, minifyImg), revreplace);
 exports.default = minifyHtml;

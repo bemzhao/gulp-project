@@ -25,8 +25,8 @@ $(document).on("click", ".mobile-navbtn", function(e){
 /*
   Swiper API move to -> http://www.swiper.com.cn/
 */
-$(function () {
-  var home_sec4_swiper = new Swiper('.home-section4-swiper', {
+{
+  let home_sec4_swiper = new Swiper('.home-section4-swiper', {
     speed: 700,
     spaceBetween: 15,
     watchOverflow: true,
@@ -50,7 +50,7 @@ $(function () {
     home_sec4_swiper.slideTo($(this).index())
   })
 
-  var home_sec6_swiper = new Swiper('.home-section6-swiper', {
+  let home_sec6_swiper = new Swiper('.home-section6-swiper', {
     speed: 700,
     spaceBetween: 15,
     watchOverflow: true,
@@ -93,9 +93,44 @@ $(function () {
       },
     }
   })
-})
+}
 
 $('#videoModel').on('hide.bs.modal', function () {
-  var video = document.getElementById("movie");
+  let video = document.getElementById("movie");
   video.pause();
 })
+
+{
+  let popup_close = 0;
+  setTimeout(() => {
+    $(".home-popup").addClass("open");
+    $(".home-popup-mask").addClass("open");
+    $("body").css("overflow", "hidden");
+    popup_close++;
+  },10000);
+
+  $(document).on("click", ".home-popup .close-popup-btn, .popup-mask", () => {
+    if (popup_close === 3) {
+      $(".home-popup").removeClass("open");
+      $(".home-popup-mask").removeClass("open");
+      $("body").css("overflow", "auto");
+    }else{
+      popup_close++;
+      $(".home-popup").removeClass("open");
+      $(".home-popup-mask").removeClass("open");
+      $("body").css("overflow", "auto");
+      setTimeout(function () {
+        $(".home-popup").addClass("open");
+        $(".home-popup-mask").addClass("open");
+        $("body").css("overflow", "hidden");
+      },20000);
+    }
+  })
+
+  $(document).on("click", ".open-popup-btn", () => {
+    $(".home-popup").addClass("open");
+    $(".home-popup-mask").addClass("open");
+    $("body").css("overflow", "hidden");
+    popup_close++;
+  })
+}

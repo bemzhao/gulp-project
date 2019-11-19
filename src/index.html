@@ -776,39 +776,6 @@
 
   <script>
     $(function () {
-      var popup_close = 0;
-      setTimeout(function () {
-        $(".home-popup").addClass("open");
-        $(".home-popup-mask").addClass("open");
-        $("body").css("overflow", "hidden");
-        popup_close++;
-      },10000);
-
-      $(document).on("click", ".home-popup .close-popup-btn, .popup-mask", function () {
-        if (popup_close === 3) {
-          $(".home-popup").removeClass("open");
-          $(".home-popup-mask").removeClass("open");
-          $("body").css("overflow", "auto");
-        }else{
-          popup_close++;
-          $(".home-popup").removeClass("open");
-          $(".home-popup-mask").removeClass("open");
-          $("body").css("overflow", "auto");
-          setTimeout(function () {
-            $(".home-popup").addClass("open");
-            $(".home-popup-mask").addClass("open");
-            $("body").css("overflow", "hidden");
-          },20000);
-        }
-      })
-
-      $(document).on("click", ".open-popup-btn", function () {
-        $(".home-popup").addClass("open");
-        $(".home-popup-mask").addClass("open");
-        $("body").css("overflow", "hidden");
-        popup_close++;
-      })
-
       $(document).on("click", ".home-section9 .img-box a", function () {
         $("#movie").attr("src", $(this).attr("data-src"));
         var video = document.getElementById("movie");

@@ -1,5 +1,5 @@
 const { src, dest, series } = require('gulp');
-const clean = require('gulp-clean');
+      clean = require('gulp-clean');
       htmlmin = require('gulp-htmlmin');
       cleanCss = require('gulp-clean-css');
       sourcemaps = require('gulp-sourcemaps');
@@ -24,7 +24,7 @@ function minifyCss() {
 		.pipe(sourcemaps.init())
 		.pipe(autoprefixer())
     .pipe(cleanCss())
-    // .pipe(concat('index.min.css'))
+    .pipe(concat('index.min.css'))
     .pipe(rev())
     .pipe(sourcemaps.write('.'))
     .pipe(dest('dist/css'))
@@ -40,7 +40,7 @@ function minifyJs () {
     }))
 		.pipe(sourcemaps.init())
 		.pipe(uglify())
-		// .pipe(concat('index.min.js'))
+		.pipe(concat('index.min.js'))
 		.pipe(rev())
 		.pipe(sourcemaps.write('.'))
 		.pipe(dest('dist/js'))
@@ -48,6 +48,7 @@ function minifyJs () {
 		.pipe(dest('dist/rev/js'));
 }
 
+// 压缩图片
 function minifyImg() {
 	return src(['src/images/*', 'src/images/**/*'])
 		.pipe(imagemin({
@@ -59,6 +60,9 @@ function minifyImg() {
 // 压缩 html 生成 hash 
 function minifyHtml () {
 	return src('src/*.html')
+    .pipe(babel({
+      presets: ['@babel/env']
+    }))
     .pipe(htmlmin({ 
     	collapseWhitespace: true,
     	removeEmptyAttributes: true,
@@ -71,6 +75,12 @@ function minifyHtml () {
     .pipe(dest('dist'));
 }
 
+// 拷贝字体
+function copyTask () {
+  return src('src/fonts/*')
+    .pipe(dest('dist/fonts'))
+}
+
 // 根据 hash 替换 html 中的文件
 function revreplace () {
 	var manifest = src('dist/rev/**/rev-manifest.json');
@@ -79,5 +89,5 @@ function revreplace () {
     .pipe(dest('dist'));
 }
 
-exports.build = series(cleanFiles, minifyCss, minifyJs, minifyImg, revreplace);
-exports.default = minifyJs;
+exports.build = series(cleanFiles, minifyCss, minifyJs, revreplace);
+exports.default = minifyHtml;

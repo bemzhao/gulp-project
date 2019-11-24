@@ -11,6 +11,7 @@ const { src, dest, series, parallel } = require('gulp');
       imagemin = require('gulp-imagemin');
       babel = require('gulp-babel');
       removeUseStrict = require("gulp-remove-use-strict");
+      useref = require('gulp-useref');
 
 
 // 清空 dist
@@ -22,12 +23,12 @@ function cleanFiles () {
 // 压缩合并 css  生成 sourcemaps 和 hash 
 function minifyCss() {
 	return src('src/css/*.css')
-		.pipe(sourcemaps.init())
+		// .pipe(sourcemaps.init())
 		.pipe(autoprefixer())
     .pipe(cleanCss())
     // .pipe(concat('index.min.css'))
     .pipe(rev())
-    .pipe(sourcemaps.write('.'))
+    // .pipe(sourcemaps.write('.'))
     .pipe(dest('dist/css'))
     .pipe(rev.manifest())
 		.pipe(dest('dist/rev/css'));
@@ -37,11 +38,11 @@ function minifyCss() {
 function minifyJs () {
 	return src('src/js/*.js')
     .pipe(babel())
-		.pipe(sourcemaps.init())
+		// .pipe(sourcemaps.init())
 		.pipe(uglify())
 		// .pipe(concat('index.min.js'))
 		.pipe(rev())
-		.pipe(sourcemaps.write('.'))
+		// .pipe(sourcemaps.write('.'))
 		.pipe(dest('dist/js'))
 		.pipe(rev.manifest())
 		.pipe(dest('dist/rev/js'));
@@ -58,16 +59,19 @@ function minifyImg() {
 
 // 压缩 html 生成 hash 
 function minifyHtml () {
+  var manifest = src('dist/rev/**/rev-manifest.json');
 	return src('src/*.html')
-    .pipe(htmlmin({ 
-    	collapseWhitespace: true,
-    	removeEmptyAttributes: true,
-    	removeScriptTypeAttributes: true,
-    	removeStyleLinkTypeAttributes: true,
-    	minifyCSS: true,
-    	minifyJS: true 
-    }))
+    // .pipe(htmlmin({ 
+    // 	collapseWhitespace: true,
+    // 	removeEmptyAttributes: true,
+    // 	removeScriptTypeAttributes: true,
+    // 	removeStyleLinkTypeAttributes: true,
+    // 	minifyCSS: true,
+    // 	minifyJS: true 
+    // }))
+    .pipe(useref())
     .pipe(rev())
+    .pipe(revReplace({manifest: manifest}))
     .pipe(dest('dist'));
 }
 
@@ -82,8 +86,19 @@ function revreplace () {
 	var manifest = src('dist/rev/**/rev-manifest.json');
 	return src('src/*.html')
     .pipe(revReplace({manifest: manifest}))
+    .pipe(rev())
     .pipe(dest('dist'));
 }
 
-exports.build = series(cleanFiles, parallel(minifyCss, minifyJs, copyTask, minifyImg), revreplace);
+exports.build = series(
+  cleanFiles, 
+  parallel(
+    minifyCss, 
+    minifyJs, 
+    copyTask, 
+  ), 
+  minifyHtml
+  // revreplace
+);
+
 exports.default = minifyHtml;

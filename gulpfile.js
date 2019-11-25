@@ -1,17 +1,16 @@
 const { src, dest, series, parallel } = require('gulp');
-      clean = require('gulp-clean');
-      htmlmin = require('gulp-htmlmin');
-      cleanCss = require('gulp-clean-css');
-      sourcemaps = require('gulp-sourcemaps');
-      autoprefixer = require('gulp-autoprefixer');
-      concat = require('gulp-concat');
-      uglify = require('gulp-uglify');
-      rev = require('gulp-rev');
-      revReplace = require("gulp-rev-replace");
-      imagemin = require('gulp-imagemin');
-      babel = require('gulp-babel');
-      removeUseStrict = require("gulp-remove-use-strict");
-      useref = require('gulp-useref');
+const clean = require('gulp-clean');
+const htmlmin = require('gulp-htmlmin');
+const cleanCss = require('gulp-clean-css');
+const sourcemaps = require('gulp-sourcemaps');
+const autoprefixer = require('gulp-autoprefixer');
+const concat = require('gulp-concat');
+const uglify = require('gulp-uglify');
+const rev = require('gulp-rev');
+const revReplace = require("gulp-rev-replace");
+const imagemin = require('gulp-imagemin');
+const babel = require('gulp-babel');
+const useref = require('gulp-useref');
 
 
 // 清空 dist
@@ -76,10 +75,17 @@ function minifyHtml () {
 }
 
 // 拷贝字体
-function copyTask () {
+function copyFonts () {
   return src('src/fonts/*')
     .pipe(dest('dist/fonts'))
 }
+
+// 拷贝字体
+function copyImgs () {
+  return src(['src/images/*', 'src/images/**/*'])
+    .pipe(dest('dist/images'))
+}
+
 
 // 根据 hash 替换 html 中的文件
 function revreplace () {
@@ -95,7 +101,8 @@ exports.build = series(
   parallel(
     minifyCss, 
     minifyJs, 
-    copyTask, 
+    copyFonts, 
+    copyImgs
   ), 
   minifyHtml
   // revreplace

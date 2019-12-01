@@ -1,16 +1,16 @@
-const { src, dest, series, parallel } = require('gulp');
-const clean = require('gulp-clean');
-const htmlmin = require('gulp-htmlmin');
-const cleanCss = require('gulp-clean-css');
-const sourcemaps = require('gulp-sourcemaps');
-const autoprefixer = require('gulp-autoprefixer');
-const concat = require('gulp-concat');
-const uglify = require('gulp-uglify');
-const rev = require('gulp-rev');
-const revReplace = require("gulp-rev-replace");
-const imagemin = require('gulp-imagemin');
-const babel = require('gulp-babel');
-const useref = require('gulp-useref');
+var { src, dest, series, parallel } = require('gulp');
+var clean = require('gulp-clean');
+var htmlmin = require('gulp-htmlmin');
+var cleanCss = require('gulp-clean-css');
+var sourcemaps = require('gulp-sourcemaps');
+var autoprefixer = require('gulp-autoprefixer');
+var concat = require('gulp-concat');
+var uglify = require('gulp-uglify');
+var rev = require('gulp-rev');
+var revReplace = require("gulp-rev-replace");
+var imagemin = require('gulp-imagemin');
+var babel = require('gulp-babel');
+var useref = require('gulp-useref');
 
 
 // 清空 dist
@@ -22,29 +22,20 @@ function cleanFiles () {
 // 压缩合并 css  生成 sourcemaps 和 hash 
 function minifyCss() {
 	return src('src/css/*.css')
-		// .pipe(sourcemaps.init())
+		.pipe(sourcemaps.init())
 		.pipe(autoprefixer())
     .pipe(cleanCss())
-    // .pipe(concat('index.min.css'))
-    .pipe(rev())
-    // .pipe(sourcemaps.write('.'))
-    .pipe(dest('dist/css'))
-    .pipe(rev.manifest())
-		.pipe(dest('dist/rev/css'));
+    .pipe(sourcemaps.write('.'))
 }
 
 // 压缩合并 js  生成 sourcemaps 和 hash 
 function minifyJs () {
-	return src('src/js/*.js')
+	return src('dist/js/*.js')
     .pipe(babel())
-		// .pipe(sourcemaps.init())
+		.pipe(sourcemaps.init())
 		.pipe(uglify())
-		// .pipe(concat('index.min.js'))
-		.pipe(rev())
-		// .pipe(sourcemaps.write('.'))
+		.pipe(sourcemaps.write("."))
 		.pipe(dest('dist/js'))
-		.pipe(rev.manifest())
-		.pipe(dest('dist/rev/js'));
 }
 
 // 压缩图片
@@ -80,7 +71,7 @@ function copyFonts () {
     .pipe(dest('dist/fonts'))
 }
 
-// 拷贝字体
+// 拷贝图片
 function copyImgs () {
   return src(['src/images/*', 'src/images/**/*'])
     .pipe(dest('dist/images'))
@@ -92,20 +83,19 @@ function revreplace () {
 	var manifest = src('dist/rev/**/rev-manifest.json');
 	return src('src/*.html')
     .pipe(revReplace({manifest: manifest}))
-    .pipe(rev())
-    .pipe(dest('dist'));
+    // .pipe(rev())
+    // .pipe(dest('dist'));
 }
 
 exports.build = series(
   cleanFiles, 
+  minifyHtml,
   parallel(
-    minifyCss, 
-    minifyJs, 
+    minifyCss,
+    minifyJs,
     copyFonts, 
     copyImgs
-  ), 
-  minifyHtml
-  // revreplace
+  )
 );
 
 exports.default = minifyHtml;

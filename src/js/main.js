@@ -21,10 +21,8 @@ $(document).on("click", ".mobile-navbtn", function(e){
 });
 
 function test () {
-  let word = "hello world!";
   let arr = [1,2,3];
   var newArr = [...arr,4,5,6];
-  alert(word);
   alert(newArr);
 }
 

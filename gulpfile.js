@@ -4,13 +4,14 @@ var htmlmin = require('gulp-htmlmin');
 var cleanCss = require('gulp-clean-css');
 var sourcemaps = require('gulp-sourcemaps');
 var autoprefixer = require('gulp-autoprefixer');
-var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
 var rev = require('gulp-rev');
 var revReplace = require("gulp-rev-replace");
 var imagemin = require('gulp-imagemin');
 var babel = require('gulp-babel');
 var useref = require('gulp-useref');
+var connect = require('gulp-connect');
+var watch = require('gulp-watch');
 
 
 // 清空 dist
@@ -77,15 +78,32 @@ function copyImgs () {
     .pipe(dest('dist/images'))
 }
 
-
-// 根据 hash 替换 html 中的文件
-function revreplace () {
-	var manifest = src('dist/rev/**/rev-manifest.json');
-	return src('src/*.html')
-    .pipe(revReplace({manifest: manifest}))
-    // .pipe(rev())
-    // .pipe(dest('dist'));
+// 运行Web服务器
+function server () {
+  connect.server({
+    root: 'src',
+    port: 8080,
+    livereload: true
+  });
 }
+
+// 监听文件
+function watchFiles () {
+  watch('src/*.html', html);
+  watch('src/js/*.js', js);
+}
+
+function js () {
+  return src('src/js/*.js')
+    .pipe(connect.reload());
+}
+function html () {
+  return src('src/*.html')
+    .pipe(connect.reload());
+}
+
+
+
 
 exports.build = series(
   cleanFiles, 
@@ -98,4 +116,5 @@ exports.build = series(
   )
 );
 
-exports.default = minifyHtml;
+exports.default = parallel(server, watchFiles);
+// exports.default = watchFiles;

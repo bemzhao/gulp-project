@@ -12,7 +12,9 @@ var babel = require('gulp-babel');
 var useref = require('gulp-useref');
 var connect = require('gulp-connect');
 var watch = require('gulp-watch');
+var sass = require('gulp-sass');
 
+sass.compiler = require('node-sass');
 
 // 清空 dist
 function cleanFiles () {
@@ -52,14 +54,14 @@ function minifyImg() {
 function minifyHtml () {
   var manifest = src('dist/rev/**/rev-manifest.json');
 	return src('src/*.html')
-    // .pipe(htmlmin({ 
-    // 	collapseWhitespace: true,
-    // 	removeEmptyAttributes: true,
-    // 	removeScriptTypeAttributes: true,
-    // 	removeStyleLinkTypeAttributes: true,
-    // 	minifyCSS: true,
-    // 	minifyJS: true 
-    // }))
+    .pipe(htmlmin({ 
+    	collapseWhitespace: true,
+    	removeEmptyAttributes: true,
+    	removeScriptTypeAttributes: true,
+    	removeStyleLinkTypeAttributes: true,
+    	minifyCSS: true,
+    	minifyJS: true 
+    }))
     .pipe(useref())
     .pipe(rev())
     .pipe(revReplace({manifest: manifest}))
@@ -89,21 +91,35 @@ function server () {
 
 // 监听文件
 function watchFiles () {
-  watch('src/*.html', html);
-  watch('src/js/*.js', js);
+  watch('src/scss/**/*.scss', watchScss);
+  watch('src/css/**/*.css', watchCss);
+  watch('src/js/*.js', watchJs);
+  watch('src/*.html', watchHtml);
 }
 
-function js () {
+function watchScss () {
+  return src('src/scss/**/*.scss')
+    .pipe(sass({outputStyle: 'expanded'}).on('error', sass.logError)) 
+    .pipe(dest('src/css'))
+    .pipe(connect.reload());
+}
+
+function watchCss () {
+  return src('src/css/**/*.css')
+    .pipe(connect.reload());
+}
+
+function watchJs () {
   return src('src/js/*.js')
     .pipe(connect.reload());
 }
-function html () {
+function watchHtml () {
   return src('src/*.html')
     .pipe(connect.reload());
 }
 
 
-
+exports.start = parallel(server, watchFiles);
 
 exports.build = series(
   cleanFiles, 
@@ -115,6 +131,3 @@ exports.build = series(
     copyImgs
   )
 );
-
-exports.default = parallel(server, watchFiles);
-// exports.default = watchFiles;

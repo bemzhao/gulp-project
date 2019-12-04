@@ -5,7 +5,7 @@
   "description": "gulp 静态页面构建工具",
   "main": "index.js",
   "scripts": {
-    "start": "gulp default",
+    "start": "gulp start",
     "build": "gulp build"
   },
   "devDependencies": {

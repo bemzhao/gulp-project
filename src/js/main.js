@@ -11,15 +11,3 @@ $(window).scroll(function(){
     $('#backtop').removeClass("on");
   }
 });
-
-function test () {
-  let arr = [0,1,2,3];
-  var newArr = [...arr,4,5,6];
-  alert(newArr);
-}
-
-(() => {
-  setTimeout( ()=> {
-    test()
-  }, 300)
-})()

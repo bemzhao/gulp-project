@@ -22,16 +22,17 @@ function cleanFiles () {
 		.pipe(clean());
 }
 
-// 压缩合并 css  生成 sourcemaps 和 hash 
+// 处理生成的 css
 function minifyCss() {
-	return src('src/css/*.css')
+	return src('dist/css/*.css')
 		.pipe(sourcemaps.init())
 		.pipe(autoprefixer())
     .pipe(cleanCss())
     .pipe(sourcemaps.write('.'))
+    .pipe(dest('dist/css'))
 }
 
-// 压缩合并 js  生成 sourcemaps 和 hash 
+// 处理生成的 js
 function minifyJs () {
 	return src('dist/js/*.js')
     .pipe(babel())
@@ -50,22 +51,28 @@ function minifyImg() {
 		.pipe(dest('dist/images'))
 }
 
-// 压缩 html 生成 hash 
+// 压缩 html
 function minifyHtml () {
+  return src('dist/*.html')
+    .pipe(htmlmin({ 
+      collapseWhitespace: true,
+      removeEmptyAttributes: true,
+      removeScriptTypeAttributes: true,
+      removeStyleLinkTypeAttributes: true,
+      minifyCSS: true,
+      minifyJS: true 
+    }))
+    .pipe(dest('dist'))
+}
+
+// 处理 html 中的资源
+function replaceSrc () {
   var manifest = src('dist/rev/**/rev-manifest.json');
 	return src('src/*.html')
-    .pipe(htmlmin({ 
-    	collapseWhitespace: true,
-    	removeEmptyAttributes: true,
-    	removeScriptTypeAttributes: true,
-    	removeStyleLinkTypeAttributes: true,
-    	minifyCSS: true,
-    	minifyJS: true 
-    }))
     .pipe(useref())
     .pipe(rev())
     .pipe(revReplace({manifest: manifest}))
-    .pipe(dest('dist'));
+    .pipe(dest('dist'))
 }
 
 // 拷贝字体
@@ -74,19 +81,13 @@ function copyFonts () {
     .pipe(dest('dist/fonts'))
 }
 
-// 拷贝图片
-function copyImgs () {
-  return src(['src/images/*', 'src/images/**/*'])
-    .pipe(dest('dist/images'))
-}
-
-// 运行Web服务器
+// 运行 Web 服务器
 function server () {
   connect.server({
     root: 'src',
     port: 8080,
     livereload: true
-  });
+  })
 }
 
 // 监听文件
@@ -101,33 +102,34 @@ function watchScss () {
   return src('src/scss/**/*.scss')
     .pipe(sass({outputStyle: 'expanded'}).on('error', sass.logError)) 
     .pipe(dest('src/css'))
-    .pipe(connect.reload());
+    .pipe(connect.reload())
 }
 
 function watchCss () {
   return src('src/css/**/*.css')
-    .pipe(connect.reload());
+    .pipe(connect.reload())
 }
 
 function watchJs () {
   return src('src/js/*.js')
-    .pipe(connect.reload());
+    .pipe(connect.reload())
 }
 function watchHtml () {
   return src('src/*.html')
-    .pipe(connect.reload());
+    .pipe(connect.reload())
 }
 
 
 exports.start = parallel(server, watchFiles);
 
 exports.build = series(
-  cleanFiles, 
-  minifyHtml,
+  cleanFiles,
+  replaceSrc,
   parallel(
     minifyCss,
     minifyJs,
+    minifyHtml,
     copyFonts, 
-    copyImgs
+    minifyImg
   )
 );

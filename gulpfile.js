@@ -44,7 +44,7 @@ function minifyJs () {
 
 // 压缩图片
 function minifyImg() {
-	return src(['src/images/*', 'src/images/**/*'])
+	return src('src/images/**')
 		.pipe(imagemin({
 			progressive: true
 		}))
@@ -77,7 +77,7 @@ function replaceSrc () {
 
 // 拷贝字体
 function copyFonts () {
-  return src('src/fonts/*')
+  return src('src/fonts/**')
     .pipe(dest('dist/fonts'))
 }
 
@@ -94,7 +94,8 @@ function server () {
 function watchFiles () {
   watch('src/scss/**/*.scss', watchScss);
   watch('src/css/**/*.css', watchCss);
-  watch('src/js/*.js', watchJs);
+  watch('src/js/**/*.js', watchJs);
+  watch('src/images/**', watchImg);
   watch('src/*.html', watchHtml);
 }
 
@@ -111,16 +112,25 @@ function watchCss () {
 }
 
 function watchJs () {
-  return src('src/js/*.js')
+  return src('src/js/**/*.js')
     .pipe(connect.reload())
 }
+
+function watchImg () {
+  return src('src/images/**')
+    .pipe(connect.reload())
+}
+
 function watchHtml () {
   return src('src/*.html')
     .pipe(connect.reload())
 }
 
 
-exports.start = parallel(server, watchFiles);
+exports.start = parallel(
+  server,
+  watchFiles
+);
 
 exports.build = series(
   cleanFiles,
